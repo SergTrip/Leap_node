@@ -21,12 +21,11 @@
 #include <QThread>
 #include <QStringListModel>
 
-
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
 
-namespace qt_test_pkg {
+namespace leap_node {
 
 /*****************************************************************************
 ** Class
@@ -40,24 +39,10 @@ public:
 	virtual ~QNode();
 
 	bool init();
-	bool init(const std::string &master_url, const std::string &host_url);
 	void run();
 
-	/*********************
-	** Logging
-	**********************/
-    enum LogLevel
-    {
-         Debug,
-         Info,
-         Warn,
-         Error,
-         Fatal
-	 };
-
-	QStringListModel* loggingModel() { return &logging_model; }
-
-	void log( const LogLevel &level, const std::string &msg);
+public Q_SLOTS:
+    void publishStateSlot( bool state );
 
 Q_SIGNALS:
 	void loggingUpdated();
@@ -67,10 +52,9 @@ private:
     int             init_argc;
     char**          init_argv;
 
-    ros::Publisher      chatter_publisher;
-    QStringListModel    logging_model;
+    ros::Publisher  leap_publisher;
 };
 
-}  // namespace qt_test_pkg
+}  // namespace leap_node
 
 #endif /* qt_test_pkg_QNODE_HPP_ */

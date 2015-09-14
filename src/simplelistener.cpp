@@ -1,4 +1,9 @@
-#include "simplelistener.h"
+#include "../include/simplelistener.h"
+
+SampleListener::SampleListener()
+{
+
+}
 
 SampleListener::~SampleListener()
 {
@@ -21,10 +26,10 @@ void SampleListener::run()
 
 void SampleListener::onInit(const Controller& controller)
 {
-  std::cout << "Initialized" << std::endl;
+    std::cout << "Initialized" << std::endl;
 
-  // Send signal
-  this->initializedSignal();
+    // Send signal
+    Q_EMIT initializedSignal();
 }
 
 void SampleListener::onConnect(const Controller& controller)
@@ -36,7 +41,7 @@ void SampleListener::onConnect(const Controller& controller)
 //  controller.enableGesture( Gesture::TYPE_SCREEN_TAP    );
 //  controller.enableGesture( Gesture::TYPE_SWIPE         );
 
-  this->connectedSignal();
+    Q_EMIT connectedSignal();
 }
 
 void SampleListener::onDisconnect(const Controller& controller)
@@ -44,7 +49,7 @@ void SampleListener::onDisconnect(const Controller& controller)
   // Note: not dispatched when running in a debugger.
   std::cout << "Disconnected" << std::endl;
 
-  this->disconnectedSignal();
+    Q_EMIT disconnectedSignal();
 }
 
 void SampleListener::onExit(const Controller& controller)
@@ -100,9 +105,10 @@ void SampleListener::onFrame(const Controller& controller)
         }
     }
 
+    bool newState;
     if( !thand || !index )
     {
-        emit releySignal( false );
+        newState = false;
     }
     else
     {
@@ -111,12 +117,18 @@ void SampleListener::onFrame(const Controller& controller)
 
         if( distance < 40 )
         {
-            emit releySignal( true );
+            newState = true;
         }
         else
         {
-            emit releySignal( false );
+            newState = false;
         }
+    }
+
+    if( newState != m_bLastState )
+    {
+        Q_EMIT releySignal( newState );
+        m_bLastState = newState;
     }
 }
 
@@ -146,12 +158,12 @@ void SampleListener::onServiceConnect(const Controller& controller)
 {
     std::cout << "Service Connected" << std::endl;
 
-    this->serviceConnectedSignal();
+    Q_EMIT serviceConnectedSignal();
 }
 
 void SampleListener::onServiceDisconnect(const Controller& controller)
 {
     std::cout << "Service Disconnected" << std::endl;
 
-    this->serviceDisconnectedSignal();
+    Q_EMIT serviceDisconnectedSignal();
 }

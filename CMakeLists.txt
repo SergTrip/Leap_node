@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(leap_node)
 
+set(CMAKE_AUTOMOC ON)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS qt_build roscpp)
+
+include_directories(${catkin_INCLUDE_DIRS}  ~/libs/LeapDeveloperKit_2.3.1+31549_linux/LeapSDK/include)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -14,6 +18,45 @@ find_package(catkin REQUIRED)
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
+
+catkin_package()
+
+#############################################################################
+# Qt Environment
+##############################################################################
+
+# this comes from qt_build's qt-ros.cmake which is automatically
+# included via the dependency call in package.xml
+rosbuild_prepare_qt4(QtCore QtGui) # Add the appropriate components to the component list here
+
+##############################################################################
+# Sections
+##############################################################################
+
+file(GLOB QT_FORMS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.ui)
+file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS include/*.hpp include/*.h)
+
+#QT5_ADD_RESOURCES(QT_RESOURCES_CPP ${QT_RESOURCES})
+QT4_WRAP_UI(QT_FORMS_HPP ${QT_FORMS})
+QT4_WRAP_CPP(QT_MOC_HPP ${QT_MOC})
+
+##############################################################################
+# Sources
+##############################################################################
+
+file(GLOB_RECURSE QT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS src/*.cpp)
+
+##############################################################################
+# Binaries
+##############################################################################
+#link_directories(~/libs/LeapDeveloperKit_2.3.1+31549_linux/LeapSDK/lib/x64)
+set(EXTRALIB_BIN ~/libs/LeapDeveloperKit_2.3.1+31549_linux/LeapSDK/lib/x64/libLeap.so)
+
+add_executable(leap_node ${QT_SOURCES} ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_HPP})
+target_link_libraries(leap_node ${QT_LIBRARIES} ${catkin_LIBRARIES} ${EXTRALIB_BIN})
+install(TARGETS leap_node RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+
 
 ################################################
 ## Declare ROS messages, services and actions ##

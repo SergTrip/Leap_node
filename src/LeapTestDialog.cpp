@@ -1,9 +1,10 @@
-#include "dialog.h"
+#include "../include/LeapTestDialog.h"
 #include "ui_dialog.h"
 
-Dialog::Dialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::Dialog)
+Dialog::Dialog(int argc, char **argv, QWidget *parent) :
+    QDialog     ( parent        ),
+    qnode       ( argc, argv    ),
+    ui          ( new Ui::Dialog)
 {
     ui->setupUi(this);
 
@@ -40,6 +41,12 @@ Dialog::Dialog(QWidget *parent) :
     QObject::connect(  &listener,   SIGNAL  ( releySignal    (bool) ),
                         this,       SLOT    ( releySlot      (bool) ) );
 
+    QObject::connect(   &listener,   SIGNAL ( releySignal       (bool) ),
+                        &qnode,       SLOT  ( publishStateSlot  (bool) ) );
+
+    QObject::connect(   &qnode, SIGNAL  ( rosShutdown() ),
+                        this,   SLOT    ( close()       )   );
+
     // Start Leap Thread
     this->listener.start();
 }
@@ -52,6 +59,12 @@ Dialog::~Dialog()
 void Dialog::initializedSlot()
 {
     ui->label_Init->setText("Initilized !!!");
+
+    // Try to connect ROS
+    if ( !qnode.init() )
+    {
+        showNoMasterMessage();
+    }
 }
 
 void Dialog::connectedSlot()
@@ -89,4 +102,12 @@ void Dialog::releySlot(bool state)
     {
         ui->label_Relay->setText( "OFF" );
     }
+}
+
+void Dialog::showNoMasterMessage()
+{
+    QMessageBox     msgBox;
+    msgBox.setText  ( "Couldn't find the ros master."   );
+    msgBox.exec     (   );
+    close();
 }

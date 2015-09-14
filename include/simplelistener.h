@@ -18,7 +18,10 @@ using namespace Leap;
 class SampleListener : public QThread, public Listener
 {
     Q_OBJECT
+
 public:
+
+    SampleListener();
     ~SampleListener();
 
     void run();
@@ -34,7 +37,7 @@ public:
     virtual void onServiceConnect       (const Controller&);
     virtual void onServiceDisconnect    (const Controller&);
 
-signals:
+Q_SIGNALS:
     // Initilize done
     void initializedSignal();
 
@@ -55,6 +58,8 @@ private:
 
     Leap::Vector    m_vThand;
     Leap::Vector    m_vIndex;
+
+    bool            m_bLastState;
 };
 
 #endif // SIMPLELISTENER_H
